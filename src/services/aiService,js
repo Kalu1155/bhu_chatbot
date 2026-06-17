@@ -1,0 +1,39 @@
+import Groq from "groq-sdk";
+
+const groq = new Groq({
+  apiKey: import.meta.env.VITE_GROQ_API_KEY,
+  dangerouslyAllowBrowser: true,
+});
+
+export const getAIResponse = async (
+  question
+) => {
+  const completion =
+    await groq.chat.completions.create({
+      model: "llama-3.3-70b-versatile",
+      messages: [
+        {
+          git role: "system",
+          content: `
+You are BHU Assistant.
+
+You help students with:
+- school information
+- admissions
+- fees
+- registration
+- examinations
+- campus life
+
+Be friendly and concise.
+`,
+        },
+        {
+          role: "user",
+          content: question,
+        },
+      ],
+    });
+
+  return completion.choices[0].message.content;
+};
