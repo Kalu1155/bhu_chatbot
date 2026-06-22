@@ -3,12 +3,13 @@ import {
   FaQuestionCircle,
   FaCog,
   FaSignOutAlt,
+  FaTimes,
 } from "react-icons/fa";
 
 import { NavLink, useNavigate } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
 
-export default function Sidebar() {
+export default function Sidebar({sidebarOpen,setSidebarOpen}){
    const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -23,11 +24,38 @@ export default function Sidebar() {
     navigate("/");
   };
   return (
-    <aside className="w-64 bg-slate-900 text-white flex flex-col">
+   <aside
+  className={`
+  fixed md:relative
+  z-50
+  h-full
+  w-64
+  bg-slate-900
+  text-white
+  flex
+  flex-col
+  transition-transform
+  duration-300
+  ${
+    sidebarOpen
+      ? "translate-x-0"
+      : "-translate-x-full"
+  }
+  md:translate-x-0
+`}
+>
       <div className="p-6 text-2xl font-bold border-b border-slate-700">
         BHU-CHATBOT
       </div>
-
+<div className="md:hidden absolute right-4 top-5">
+  <button
+    onClick={() =>
+      setSidebarOpen(false)
+    }
+  >
+    <FaTimes />
+  </button>
+</div>
       <nav className="flex-1 p-4">
         <ul className="space-y-2">
           <li>

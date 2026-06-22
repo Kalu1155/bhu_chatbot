@@ -13,17 +13,17 @@ export default function FAQCard({
         {faq.answer}
       </p>
 
-      <div className="flex gap-3 mt-4">
+     <div className="flex flex-col sm:flex-row gap-3 mt-4">
         <button
           onClick={() => onEdit(faq)}
-          className="px-4 py-2 rounded-lg bg-blue-500 text-white"
+          className="w-full sm:w-auto px-4 py-2 px-4 py-2 rounded-lg bg-blue-500 text-white"
         >
           Edit
         </button>
 
         <button
           onClick={() => onDelete(faq)}
-          className="px-4 py-2 rounded-lg bg-red-500 text-white"
+          className="w-full sm:w-auto px-4 py-2 px-4 py-2 rounded-lg bg-red-500 text-white"
         >
           Delete
         </button>

@@ -21,22 +21,22 @@ export default function FAQModal({
 
   if (!isOpen) return null;
 
- const handleSubmit = () => {
-  console.log("SAVE CLICKED");
+  const handleSubmit = () => {
+    console.log("SAVE CLICKED");
 
-  console.log(question);
-  console.log(answer);
+    console.log(question);
+    console.log(answer);
 
-  if (!question || !answer) {
-    console.log("EMPTY FIELD");
-    return;
-  }
+    if (!question || !answer) {
+      console.log("EMPTY FIELD");
+      return;
+    }
 
-  onSubmit({
-    question,
-    answer,
-  });
-};
+    onSubmit({
+      question,
+      answer,
+    });
+  };
 
   const handleClose = () => {
     setQuestion("");
@@ -46,7 +46,18 @@ export default function FAQModal({
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
-      <div className="bg-white rounded-xl p-6 w-full max-w-lg">
+      <div
+        className="
+  bg-white
+  rounded-xl
+  p-4
+  md:p-6
+  w-[95%]
+  max-w-lg
+  max-h-[90vh]
+  overflow-y-auto
+"
+      >
         <h2 className="text-2xl font-bold mb-4">
           {initialData ? "Edit FAQ" : "Add FAQ"}
         </h2>
@@ -62,7 +73,7 @@ export default function FAQModal({
           value={answer}
           onChange={(e) => setAnswer(e.target.value)}
           placeholder="Answer"
-          className="w-full border p-3 rounded-lg"
+          className="w-full border p-3 rounded-lg min-h-[150px]"
         />
 
         <div className="flex justify-end gap-3 mt-4">

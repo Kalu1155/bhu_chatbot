@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import { getAdminByEmail } from "../../services/adminService";
+import { FaBars } from "react-icons/fa";
 
-export default function Navbar() {
-  const [adminName, setAdminName] =
-    useState("Admin");
-
+export default function Navbar({setSidebarOpen}) {
+  const [adminName, setAdminName] = useState("Admin");
+const [loading, setLoading] = useState(true);
   useEffect(() => {
     const loadAdmin = async () => {
       try {
@@ -35,10 +35,21 @@ export default function Navbar() {
     adminName.charAt(0).toUpperCase();
 
   return (
-    <header className="bg-white shadow-sm px-6 py-4 flex justify-between">
-      <h1 className="font-bold text-2xl">
-        Dashboard
-      </h1>
+   <header className="bg-white shadow-sm px-4 md:px-6 py-4 flex justify-between items-center">
+  <div className="flex items-center gap-3">
+  <button
+    className="md:hidden"
+    onClick={() =>
+      setSidebarOpen(true)
+    }
+  >
+    <FaBars size={20} />
+  </button>
+
+  <h1 className="font-bold text-xl md:text-2xl">
+    Dashboard
+  </h1>
+</div>
 
       <div className="flex items-center gap-3">
         <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold">
