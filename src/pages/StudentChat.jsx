@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import gsap from "gsap";
 import {
   findFAQAnswer,
   saveUnansweredQuestion,
@@ -32,13 +33,16 @@ export default function StudentChat() {
   const [message, setMessage] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef(null);
+const messageRefs = useRef([]);
+const inputRef = useRef(null);
 
 // text: formatAnswer(answer)
   const [messages, setMessages] =
     useState([
       {
         sender: "bot",
-        text: "Hello 👋 How can I help you today?",
+        // text: "Hello 👋 How can I help you today?",
+        text:"👋 Welcome to BHU Assistant.\n\nAsk me about admissions, fees, registration, exams, school activities and more.",
       },
     ]);
 
@@ -52,7 +56,8 @@ const handleSend = async () => {
     { sender: "user", text: userMessage },
   ]);
 
-  setMessage("");
+ setMessage("");
+inputRef.current?.focus();
 
   try {
     setIsTyping(true);
@@ -97,9 +102,16 @@ const answer =
   await findFAQAnswer(userMessage);
 
 if (answer) {
+  const smartAnswer =
+    await getAIResponse(
+      userMessage,
+      answer.question,
+      answer.answer
+    );
+
   await saveChatHistory(
     userMessage,
-    answer.answer,
+    smartAnswer,
     "faq"
   );
 
@@ -107,10 +119,10 @@ if (answer) {
     ...prev,
     {
       sender: "bot",
-      text: formatAnswer(answer.answer),
+      text: formatAnswer(smartAnswer),
     },
   ]);
-} else {
+}else {
   const aiAnswer =
     await getAIResponse(userMessage);
 
@@ -128,7 +140,7 @@ if (answer) {
     ...prev,
     {
       sender: "bot",
-      text: aiAnswer,
+     text: formatAnswer(aiAnswer),
     },
   ]);
 }
@@ -147,6 +159,45 @@ if (answer) {
     setIsTyping(false);
   }
 };
+
+// typing
+useEffect(() => {
+  if (!isTyping) return;
+
+  const animation = gsap.to(".typing-dot", {
+    y: -5,
+    duration: 0.3,
+    repeat: -1,
+    yoyo: true,
+    stagger: 0.1,
+  });
+
+  return () => animation.kill();
+}, [isTyping]);
+
+// animation
+useEffect(() => {
+  const latest =
+    messageRefs.current[
+      messageRefs.current.length - 1
+    ];
+
+  if (latest) {
+    gsap.fromTo(
+      latest,
+      {
+        opacity: 0,
+        y: 20,
+      },
+      {
+        opacity: 1,
+        y: 0,
+        duration: 0.4,
+      }
+    );
+  }
+}, [messages]);
+
 // scrool down
 useEffect(() => {
   setTimeout(() => {
@@ -157,7 +208,7 @@ useEffect(() => {
 }, [messages, isTyping]);
 
   return (
-    <div className="h-screen bg-slate-100 flex flex-col">
+   <div className="h-dvh bg-slate-100 flex flex-col">
       {/* Header */}
       <div className="bg-slate-900 text-white p-4">
         <h1 className="text-xl font-bold">
@@ -166,10 +217,11 @@ useEffect(() => {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-5">
+    <div className="flex-1 overflow-y-auto p-4 md:p-5">
 
         {messages.map((msg, index) => (
           <div
+          ref={(el) => (messageRefs.current[index] = el)}
             key={index}
             className={`mb-4 flex ${msg.sender === "user"
                 ? "justify-end"
@@ -177,10 +229,11 @@ useEffect(() => {
               }`}
           >
             <div
-              className={`px-4 py-3 rounded-xl max-w-[80%] whitespace-pre-wrap${msg.sender === "user"
-                  ? "bg-blue-600 text-white"
-                  : "bg-white shadow"
-                }`}
+             className={`px-4 py-3 rounded-xl max-w-[90%] sm:max-w-[80%] whitespace-pre-wrap ${
+  msg.sender === "user"
+    ? "bg-blue-600 text-white"
+    : "bg-white shadow"
+}`}
             >
               {msg.text}
             </div>
@@ -194,9 +247,9 @@ useEffect(() => {
       </p>
 
       <div className="flex gap-1">
-        <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></span>
-        <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-150"></span>
-        <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-300"></span>
+        <span className="typing-dot w-2 h-2 bg-gray-400 rounded-full"></span>
+  <span className="typing-dot w-2 h-2 bg-gray-400 rounded-full"></span>
+  <span className="typing-dot w-2 h-2 bg-gray-400 rounded-full"></span>
       </div>
     </div>
   </div>
@@ -204,10 +257,16 @@ useEffect(() => {
 <div ref={messagesEndRef}></div>
       </div>
       {/* Input */}
-      <div className="bg-white p-4 border-t flex gap-3">
+   <div
+  className="bg-white p-3 border-t flex gap-3"
+  style={{
+    paddingBottom: "max(12px, env(safe-area-inset-bottom))",
+  }}
+>
         <input
           type="text"
           value={message}
+          ref={inputRef}
           onChange={(e) =>
             setMessage(e.target.value)
           }
@@ -217,7 +276,7 @@ useEffect(() => {
             }
           }}
           placeholder="Ask a question..."
-          className="flex-1 border rounded-lg px-4 py-3"
+        className="flex-1 border rounded-lg px-4 py-3 text-base outline-none"
         />
 
         <button
