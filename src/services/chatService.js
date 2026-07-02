@@ -26,17 +26,17 @@ export const findFAQAnswer = async (
   return results[0].item;
 };
 
-export const saveUnansweredQuestion =
-  async (question) => {
-    const { error } =
-      await supabase
-        .from(
-          "unanswered_questions"
-        )
-        .insert([{ question }]);
+// export const saveUnansweredQuestion =
+//   async (question) => {
+//     const { error } =
+//       await supabase
+//         .from(
+//           "unanswered_questions"
+//         )
+//         .insert([{ question }]);
 
-    if (error) throw error;
-  };
+//     if (error) throw error;
+//   };
 
 export const saveChatHistory =
   async (

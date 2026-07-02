@@ -9,6 +9,8 @@ export default function FAQModal({
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
 
+  
+
   useEffect(() => {
     if (initialData) {
       setQuestion(initialData.question);
@@ -31,7 +33,6 @@ export default function FAQModal({
       console.log("EMPTY FIELD");
       return;
     }
-
     onSubmit({
       question,
       answer,

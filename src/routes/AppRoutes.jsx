@@ -4,6 +4,7 @@ import Login from "../pages/Login";
 import Dashboard from "../pages/Dashboard";
 import FAQPage from "../pages/FAQPage";
 import StudentChat from "../pages/StudentChat";
+import Questions from "../pages/Questions";
 import ProtectedRoute from "../components/ProtectedRoute";
 
 export default function AppRoutes() {
@@ -22,8 +23,10 @@ export default function AppRoutes() {
         />
 
         <Route path="/faqs" element={<FAQPage />} />
-
         <Route path="/chat" element={<StudentChat />} />
+        <Route path="/questions" element={<Questions />} />
+
+
       </Routes>
     </BrowserRouter>
   );

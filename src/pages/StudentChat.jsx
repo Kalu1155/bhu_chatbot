@@ -2,9 +2,10 @@ import { useState, useEffect, useRef } from "react";
 import gsap from "gsap";
 import {
   findFAQAnswer,
-  saveUnansweredQuestion,
+  // saveUnansweredQuestion,
   saveChatHistory,
 } from "../services/chatService";
+import { addQuestion } from "../services/faqService";
 import { getAIResponse } from "../services/aiService";
 
 
@@ -46,7 +47,7 @@ export default function StudentChat() {
       },
     ]);
 
-  const handleSend = async () => {
+   const handleSend = async () => {
     if (!message.trim()) return;
 
     const userMessage = message;
@@ -98,66 +99,79 @@ export default function StudentChat() {
       //     },
       //   ]);
       // }
-      const answer =
-        await findFAQAnswer(userMessage);
+    const answer = await findFAQAnswer(userMessage);
 
-      if (answer) {
-        const smartAnswer =
-          await getAIResponse(
-            userMessage,
-            answer.question,
-            answer.answer
-          );
+if (answer) {
+  const smartAnswer = await getAIResponse(
+    userMessage,
+    answer.question,
+    answer.answer
+  );
 
-        await saveChatHistory(
-          userMessage,
-          smartAnswer,
-          "faq"
-        );
+  await saveChatHistory(
+    userMessage,
+    smartAnswer,
+    "faq"
+  );
 
-        setMessages((prev) => [
-          ...prev,
-          {
-            sender: "bot",
-            text: formatAnswer(smartAnswer),
-          },
-        ]);
-      } else {
-        const aiAnswer =
-          await getAIResponse(userMessage);
+  setMessages((prev) => [
+    ...prev,
+    {
+      sender: "bot",
+      text: formatAnswer(smartAnswer),
+    },
+  ]);
+} else {
+  let aiAnswer;
 
-        await saveUnansweredQuestion(
-          userMessage
-        );
+  try {
+    aiAnswer = await getAIResponse(userMessage);
+  } catch (err) {
+    console.error(err);
 
-        await saveChatHistory(
-          userMessage,
-          aiAnswer,
-          "ai"
-        );
+    aiAnswer =
+      "Sorry, I couldn't find an answer right now. Your question has been sent to the administrator.";
+  }
 
-        setMessages((prev) => [
-          ...prev,
-          {
-            sender: "bot",
-            text: formatAnswer(aiAnswer),
-          },
-        ]);
-      }
-    } catch (error) {
-      console.log(error);
+  // Save every conversation
+  await saveChatHistory(
+    userMessage,
+    aiAnswer,
+    "unanswered"
+  );
 
-      setMessages((prev) => [
-        ...prev,
-        {
-          sender: "bot",
-          text:
-            "Something went wrong. Please try again.",
-        },
-      ]);
-    } finally {
-      setIsTyping(false);
-    }
+  // Save unanswered list
+  // await saveUnansweredQuestion(userMessage);
+
+  // Save admin questions table
+  await addQuestion(
+    userMessage,
+    aiAnswer,
+    "unanswered",
+    "pending"
+  );
+
+  setMessages((prev) => [
+    ...prev,
+    {
+      sender: "bot",
+      text: formatAnswer(aiAnswer),
+    },
+  ]);
+}
+} catch (error) {
+  console.error(error);
+
+  setMessages((prev) => [
+    ...prev,
+    {
+      sender: "bot",
+      text: "Something went wrong. Please try again.",
+    },
+  ]);
+} finally {
+  setIsTyping(false);
+}
   };
 
   // typing

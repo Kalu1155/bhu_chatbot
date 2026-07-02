@@ -4,6 +4,7 @@ import {
   FaCog,
   FaSignOutAlt,
   FaTimes,
+  FaQuestion ,
 } from "react-icons/fa";
 
 import { NavLink, useNavigate } from "react-router-dom";
@@ -103,7 +104,22 @@ export default function Sidebar({sidebarOpen,setSidebarOpen}){
               Settings
             </NavLink>
           </li>
+           <li>
+            <NavLink
+              to="/questions"
+              className={({ isActive }) =>
+                `flex items-center gap-3 p-3 rounded-lg transition-all ${isActive
+                  ? "bg-blue-600 text-white"
+                  : "hover:bg-slate-800"
+                }`
+              }
+            >
+              <FaQuestion />
+              Questions
+            </NavLink>
+          </li>
         </ul>
+
       </nav>
 
       <div className="p-4 border-t border-slate-700">

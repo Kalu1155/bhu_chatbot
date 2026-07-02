@@ -1,11 +1,10 @@
 import AdminLayout from "../layouts/AdminLayout";
-import StatCard from "../components/dashboard/StateCard";
+import StateCard from "../components/dashboard/StateCard";
 import { useEffect, useState } from "react";
 import SkeletonCard from "../components/dashboard/SkeletonCard";
 import gsap from "gsap";
 import { useRef } from "react";
-
-
+import { getRecentFAQs,}  from "../services/faqService";
 import {
   getTotalFAQs,
   getTodayFAQs,
@@ -15,14 +14,14 @@ import {
 
 export default function Dashboard() {
   const cardsRef = useRef([]);
-
+  const [loading, setLoading] = useState(true);
+  const [recentFAQs, setRecentFAQs] = useState([]);
  const [stats, setStats] = useState({
   totalFAQs: 0,
   todayFAQs: 0,
   totalQuestions: 0,
   unansweredQuestions: 0,
 });
-const [loading, setLoading] = useState(true);
 
 useEffect(() => {
   if (!loading) {
@@ -44,11 +43,13 @@ const loadStats = async () => {
       todayFAQs,
       totalQuestions,
       unansweredQuestions,
+      recentFAQs,
     ] = await Promise.all([
       getTotalFAQs(),
       getTodayFAQs(),
       getTotalQuestions(),
       getUnansweredQuestions(),
+      getRecentFAQs(),
     ]);
 
     setStats({
@@ -57,6 +58,13 @@ const loadStats = async () => {
       totalQuestions,
       unansweredQuestions,
     });
+
+    setRecentFAQs(recentFAQs);
+  } catch (error) {
+    console.error(
+      "Failed to load dashboard:",
+      error
+    );
   } finally {
     setLoading(false);
   }
@@ -65,6 +73,9 @@ const loadStats = async () => {
   useEffect(() => {
     loadStats();
   }, []);
+ 
+
+
   return (
     <AdminLayout>
       {/* STATS */}
@@ -80,28 +91,28 @@ const loadStats = async () => {
   ) : (
     <>
      <div ref={(el) => (cardsRef.current[0] = el)}>
-  <StatCard
+  <StateCard
     title="Total FAQs"
     value={stats.totalFAQs}
   />
 </div>
 
 <div ref={(el) => (cardsRef.current[1] = el)}>
-  <StatCard
+  <StateCard
     title="FAQs Today"
     value={stats.todayFAQs}
   />
 </div>
 
 <div ref={(el) => (cardsRef.current[2] = el)}>
-  <StatCard
+  <StateCard
     title="Questions Asked"
     value={stats.totalQuestions}
   />
 </div>
 
 <div ref={(el) => (cardsRef.current[3] = el)}>
-  <StatCard
+  <StateCard
     title="Unanswered"
     value={stats.unansweredQuestions}
   />
@@ -118,9 +129,36 @@ const loadStats = async () => {
           Recent FAQs
         </h2>
 
-        <p className="text-gray-500">
-          We will connect real recent FAQs next.
-        </p>
+       <div className="space-y-3">
+  {recentFAQs.length === 0 ? (
+    <p className="text-gray-500">
+      No FAQs found.
+    </p>
+  ) : (
+    recentFAQs.map((faq) => (
+     <div
+  key={faq.id}
+  className="bg-gray-100 hover:bg-gray-200 transition rounded-xl p-4"
+>
+  <div className="flex justify-between items-start">
+    <h3 className="font-semibold">
+      {faq.question}
+    </h3>
+
+    <span className="text-xs text-gray-500">
+      {new Date(
+        faq.created_at
+      ).toLocaleDateString()}
+    </span>
+  </div>
+
+  <p className="text-gray-600 mt-2 line-clamp-2">
+    {faq.answer}
+  </p>
+</div>
+    ))
+  )}
+</div>
       </div>
     </AdminLayout>
   );
